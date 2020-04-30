@@ -1,7 +1,5 @@
 defmodule EctoStreamFactory.Factory do
-  @moduledoc """
-  Fill me
-  """
+  @moduledoc false
 
   def build(module, generator_name, attrs) do
     module
@@ -56,17 +54,13 @@ defmodule EctoStreamFactory.Factory do
   defp create_stream(module, generator_name) do
     function_name = function_from_generator_name(generator_name)
 
-    if generator_func_exists?(module, function_name) do
+    if function_exported?(module, function_name, 0) do
       apply(module, function_name, [])
     else
       raise EctoStreamFactory.UndefinedGeneratorError,
         module: module,
         generator_name: generator_name
     end
-  end
-
-  defp generator_func_exists?(module, func_name) do
-    Code.ensure_loaded?(module) and function_exported?(module, func_name, 0)
   end
 
   defp function_from_generator_name(generator_name) do

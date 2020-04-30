@@ -1,7 +1,5 @@
 defmodule EctoStreamFactory.UndefinedGeneratorError do
-  @moduledoc """
-  Error raised when trying to build or insert a record using undefined generator.
-  """
+  @moduledoc false
 
   defexception [:module, :generator_name]
 
@@ -24,9 +22,7 @@ defmodule EctoStreamFactory.UndefinedGeneratorError do
 end
 
 defmodule EctoStreamFactory.RepoNotSpecifiedError do
-  @moduledoc """
-  Error raised when `use EctoStreamFactory` is missing `:repo` option
-  """
+  @moduledoc false
 
   defexception [:module]
 

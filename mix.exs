@@ -9,7 +9,11 @@ defmodule EctoStreamFactory.MixProject do
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       elixirc_paths: elixirc_paths(Mix.env()),
-      aliases: aliases()
+      aliases: aliases(),
+
+      # Docs
+      name: "EctoStreamFactory",
+      docs: docs()
     ]
   end
 
@@ -25,7 +29,8 @@ defmodule EctoStreamFactory.MixProject do
     [
       {:stream_data, "~> 0.4", optional: true},
       {:ecto_sql, "~> 3.0", optional: true},
-      {:postgrex, ">= 0.0.0", only: :test}
+      {:postgrex, ">= 0.0.0", only: :test},
+      {:ex_doc, "~> 0.21", only: :dev, runtime: false}
       # {:dep_from_hexpm, "~> 0.3.0"},
       # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"}
     ]
@@ -37,6 +42,14 @@ defmodule EctoStreamFactory.MixProject do
   defp aliases do
     [
       test: ["ecto.create --quiet", "ecto.migrate", "test"]
+    ]
+  end
+
+  defp docs do
+    [
+      source_url: "https://github.com/ibarchenkov/ecto_stream_factory",
+      extras: ["README.md"],
+      main: "readme"
     ]
   end
 end
