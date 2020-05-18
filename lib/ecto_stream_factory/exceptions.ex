@@ -4,16 +4,13 @@ defmodule EctoStreamFactory.UndefinedGeneratorError do
   defexception [:module, :generator_name]
 
   @impl true
-  def message(%{module: module, generator_name: generator_name}) do
-    module = EctoStreamFactory.Factory.module_to_string(module)
-    generator_name = inspect(generator_name)
-
+  def message(%{module: module, generator_name: gen_name}) do
     """
-    No generator defined for #{generator_name}.
+    No generator defined for #{inspect(gen_name)}.
     Please check for typos or define your generator:
 
         defmodule #{module} do
-          def #{generator_name}_generator do
+          def #{EctoStreamFactory.Factory.function_from_generator_name(gen_name)} do
             ...
           end
         end
@@ -28,7 +25,6 @@ defmodule EctoStreamFactory.RepoNotSpecifiedError do
 
   @impl true
   def message(%{module: module}) do
-    module = EctoStreamFactory.Factory.module_to_string(module)
     repo_module = module |> String.split(".") |> hd()
 
     """
