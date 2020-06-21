@@ -4,7 +4,7 @@ defmodule EctoStreamFactory.TestFactory do
   def user_generator do
     gen all name <- string(:alphanumeric, min_length: 1),
             email <- email_generator(),
-            age <- integer(18..80) do
+            age <- integer(15..80) do
       %EctoStreamFactory.User{name: name, email: email, age: age}
     end
   end

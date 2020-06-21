@@ -9,8 +9,15 @@ defmodule EctoStreamFactory do
 
         def user_generator do
           gen all name <- string(:alphanumeric, min_length: 1),
-                  age <- integer(18..80) do
+                  age <- integer(15..80) do
             %User{name: name, age: age}
+          end
+        end
+
+        def post_generator do
+          gen all author <- user_generator(),
+                  body <- string(:alphanumeric, min_length: 10) do
+            %Post{author: author, body: body}
           end
         end
       end

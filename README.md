@@ -23,7 +23,7 @@ def deps do
 end
 ```
 
-Create a factory module in `test/support/factory.ex`. Generator functions needs to have "_generator" suffix:
+Create a factory module in `test/support/factory.ex`. Generator functions should have "_generator" suffix:
 
 ```elixir
 defmodule MyApp.Factory do
@@ -31,7 +31,7 @@ defmodule MyApp.Factory do
 
   def user_generator do
     gen all name <- string(:alphanumeric, min_length: 1),
-            age <- integer(18..80),
+            age <- integer(15..80),
             email <- email_generator() do
       %MyApp.User{name: name, age: age, email: email}
     end
@@ -40,7 +40,7 @@ defmodule MyApp.Factory do
   def post_generator do
     gen all author <- user_generator(),
             body <- string(:alphanumeric, min_length: 10) do
-      %EctoStreamFactory.Post{author: author, body: body}
+      %MyApp.Post{author: author, body: body}
     end
   end
 
@@ -72,7 +72,7 @@ Optionally import the factory in `.iex.exs` to simplify its usage inside `iex -S
 import MyApp.Factory
 ```
 
-For a regular Elixir project you can import the factory in every test module with [ExUnti.CaseTemplate](https://hexdocs.pm/ex_unit/ExUnit.CaseTemplate.html).
+For a vanilla Elixir project you can import the factory in every test module with [ExUnti.CaseTemplate](https://hexdocs.pm/ex_unit/ExUnit.CaseTemplate.html).
 Create a file `test/support/case.ex` and add:
 ```elixir
 defmodule MyApp.Case do
@@ -124,11 +124,11 @@ iex> insert(:user)
 iex> insert(:user, [email: "az7@gmail.com"], on_conflict: :nothing)
 %User{id: nil, name: "c", age: 44, email: "az7@gmail.com"}
 
-iex> insert(:post, author: build(:user, name: "Joe"))
-%Post{id: 1, text: "kjfwi245lfh", author: %User{id: 2, name: "jk", age: 34, email: "jhg8@yandex.com"}}
+iex> insert(:post, author: build(:user, name: "Jane"))
+%Post{id: 1, text: "kjfwi245lfh", author: %User{id: 2, name: "Jane", age: 34, email: "jhg8@yandex.com"}}
 
-iex> insert_list(:user, age: 18)
-[%User{id: 3, name: "bc", age: 18, email: "kl9@protonmail.com"}, %User{id: 4, name: "bd", age: 19, email: "hj10@yandex.com"}]
+iex> insert_list(2, :user, age: 18)
+[%User{id: 3, name: "bc", age: 18, email: "kl9@protonmail.com"}, %User{id: 4, name: "bd", age: 18, email: "hj10@yandex.com"}]
 ```
 
 ## Usage in property-based tests

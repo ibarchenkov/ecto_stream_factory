@@ -7,7 +7,7 @@ defmodule EctoStreamFactory.MixProject do
     [
       app: :ecto_stream_factory,
       version: "0.1.0",
-      elixir: "~> 1.10",
+      elixir: ">= 1.10.0",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       elixirc_paths: elixirc_paths(Mix.env()),
