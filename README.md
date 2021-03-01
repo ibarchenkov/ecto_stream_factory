@@ -23,6 +23,14 @@ def deps do
 end
 ```
 
+Add `:stream_data` to your `.formatter.exs`:
+
+```elixir
+[
+  import_deps: [:stream_data]
+]
+```
+
 Create a factory module in `test/support/factory.ex`. Generator functions should have "_generator" suffix:
 
 ```elixir
@@ -166,3 +174,33 @@ import MyApp.Factory
 insert_list(100, :post)
 ```
 Then run it with `mix run priv/repo/seeds.exs`
+
+## Advanced cases
+### How to conditionally generate values based on the result of previous generators?
+
+```elixir
+def user_generator do
+	gen all language_code <- member_of(~w(ru en)),
+			last_name <- user_last_name(language_code) do
+		%User{
+			language_code: language_code,
+			last_name: last_name
+		}
+	end
+end
+
+defp user_last_name("ru"), do: member_of(~w(Ivanov Petrov))
+defp user_last_name("en"), do: member_of(~w(Smith Brown))
+```
+
+### How to modify the output of a generator inside another generator?
+
+```elixir
+def admin_generator do
+	gen all user <- bind(user_generator(), fn user ->
+						Map.put(user, :type, "admin")
+					end) do
+		user
+	end
+end
+```
