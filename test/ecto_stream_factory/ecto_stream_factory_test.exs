@@ -58,6 +58,7 @@ defmodule EctoStreamFactoryTest do
     test "merges plain maps" do
       map = build(:map, field1: "foo")
       assert map.field1 == "foo"
+      assert is_integer(map.field2)
     end
 
     test "merges keyword lists" do
@@ -74,6 +75,55 @@ defmodule EctoStreamFactoryTest do
       post = build(:post)
       assert is_nil(post.author_id)
       assert String.length(post.author.name) >= 1
+    end
+  end
+
+  describe "build!/2" do
+    test "without attributes" do
+      user = build!(:user)
+
+      assert user.name
+    end
+
+    test "with valid struct attributes" do
+      user = build!(:user, name: "Saša", email: "sasa@example.com")
+
+      assert user.name == "Saša"
+      assert user.email == "sasa@example.com"
+    end
+
+    test "with invalid struct attributes" do
+      assert_raise EctoStreamFactory.MissingKeyError, fn ->
+        build!(:user, name: "Aston", foo: "bar")
+      end
+    end
+
+    test "with valid map attributes" do
+      map = build!(:map, field1: "foo")
+
+      assert map.field1 == "foo"
+    end
+
+    test "with invalid map attributes" do
+      assert_raise EctoStreamFactory.MissingKeyError,
+                   "EctoStreamFactory.TestFactory.map_generator does not generate :field3 field.\n",
+                   fn ->
+                     build!(:map, field1: "foo", field3: "bar")
+                   end
+    end
+
+    test "with valid keyword list attributes" do
+      keyword = build!(:keyword, field1: "foo")
+
+      assert Keyword.get(keyword, :field1) == "foo"
+    end
+
+    test "with invalid keyword list attributes" do
+      assert_raise EctoStreamFactory.MissingKeyError,
+                   ~r/keyword_generator does not generate :field4/,
+                   fn ->
+                     build!(:keyword, field4: "foo")
+                   end
     end
   end
 
@@ -103,6 +153,21 @@ defmodule EctoStreamFactoryTest do
     end
   end
 
+  describe "build_list!/2" do
+    test "with valid attrs" do
+      [u1, u2] = build_list!(2, :user, name: "Chris")
+
+      assert u1.name == "Chris"
+      assert u2.name == "Chris"
+    end
+
+    test "with invalid attrs" do
+      assert_raise EctoStreamFactory.MissingKeyError, fn ->
+        build_list!(2, :user, foo: "bar")
+      end
+    end
+  end
+
   describe "insert/3" do
     test "without attrs" do
       u = insert(:user)
@@ -128,6 +193,20 @@ defmodule EctoStreamFactoryTest do
     end
   end
 
+  describe "insert!/3" do
+    test "with valid attrs" do
+      u = insert(:user, name: "Bram")
+
+      assert Repo.get!(User, u.id).name == "Bram"
+    end
+
+    test "with invalid attrs" do
+      assert_raise EctoStreamFactory.MissingKeyError, fn ->
+        insert!(:user, foo: "bar")
+      end
+    end
+  end
+
   describe "insert_list/4" do
     test "upsert works for list" do
       insert_list(2, :user, email: &"user#{&1}@example.com")
@@ -139,6 +218,20 @@ defmodule EctoStreamFactoryTest do
                %{email: "user2@example.com"},
                %{email: "user3@example.com"}
              ] = User |> order_by(:email) |> Repo.all()
+    end
+  end
+
+  describe "insert_list!/4" do
+    test "with valid attrs" do
+      [u1, u2] = insert_list(2, :user, name: "Ben")
+      assert u1.name == "Ben"
+      assert u2.name == "Ben"
+    end
+
+    test "with invalid attrs" do
+      assert_raise EctoStreamFactory.MissingKeyError, fn ->
+        insert_list!(2, :user, foo: "bar")
+      end
     end
   end
 
