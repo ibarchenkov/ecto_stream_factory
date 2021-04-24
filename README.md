@@ -180,13 +180,13 @@ Then run it with `mix run priv/repo/seeds.exs`
 
 ```elixir
 def user_generator do
-	gen all language_code <- member_of(~w(ru en)),
-			last_name <- user_last_name(language_code) do
-		%User{
-			language_code: language_code,
-			last_name: last_name
-		}
-	end
+  gen all language_code <- member_of(~w(ru en)),
+          last_name <- user_last_name(language_code) do
+    %User{
+      language_code: language_code,
+      last_name: last_name
+    }
+  end
 end
 
 defp user_last_name("ru"), do: member_of(~w(Ivanov Petrov))
@@ -197,10 +197,11 @@ defp user_last_name("en"), do: member_of(~w(Smith Brown))
 
 ```elixir
 def admin_generator do
-	gen all user <- bind(user_generator(), fn user ->
-						Map.put(user, :type, "admin")
-					end) do
-		user
-	end
+  gen all admin <-
+            bind(user_generator(), fn user ->
+              Map.put(user, :type, "admin")
+            end) do
+    admin
+  end
 end
 ```
