@@ -1,0 +1,39 @@
+name: CI
+
+on: [push]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      MIX_ENV: test
+
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: '23.3'
+          elixir-version: '1.12.0-rc.1'
+
+      - run: mix deps.get --only $MIX_ENV
+      - run: mix format --check-formatted
+      # - run: mix deps.unlock --check-unused
+      - run: mix deps.compile
+      - run: mix compile --warnings-as-errors
+      - run: mix ecto.create --quiet
+      - run: mix ecto.migrate --quiet
+      - run: mix ecto.rollback --quiet --step 10
+      - run: mix ecto.migrate --quiet
+      - run: mix test --warnings-as-errors
