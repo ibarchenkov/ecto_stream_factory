@@ -2,51 +2,137 @@ defmodule EctoStreamFactory.Factory do
   @moduledoc false
 
   def build(module, generator_name, attrs) do
+    do_build(module, generator_name, attrs, &build_list/4)
+  end
+
+  def build!(module, generator_name, attrs) do
+    do_build(module, generator_name, attrs, &build_list!/4)
+  end
+
+  defp do_build(module, generator_name, attrs, build_list_fun) do
     module
-    |> build_list(1, generator_name, attrs)
+    |> build_list_fun.(1, generator_name, attrs)
     |> hd()
   end
 
   def build_list(module, count, generator_name, attrs) do
+    do_build_list(module, count, generator_name, attrs, &create_records_stream/3)
+  end
+
+  def build_list!(module, count, generator_name, attrs) do
+    do_build_list(module, count, generator_name, attrs, &create_records_stream!/3)
+  end
+
+  defp do_build_list(module, count, generator_name, attrs, create_records_stream_fun) do
     module
-    |> create_records_stream(generator_name, attrs)
+    |> create_records_stream_fun.(generator_name, attrs)
     |> Enum.take(count)
   end
 
   def insert(module, repo, generator_name, attrs, opts) do
+    do_insert(module, repo, generator_name, attrs, opts, &insert_list/6)
+  end
+
+  def insert!(module, repo, generator_name, attrs, opts) do
+    do_insert(module, repo, generator_name, attrs, opts, &insert_list!/6)
+  end
+
+  def do_insert(module, repo, generator_name, attrs, opts, insert_list_fun) do
     module
-    |> insert_list(repo, 1, generator_name, attrs, opts)
+    |> insert_list_fun.(repo, 1, generator_name, attrs, opts)
     |> hd()
   end
 
   def insert_list(module, repo, count, generator_name, attrs, opts) do
+    do_insert_list(module, repo, count, generator_name, attrs, opts, &create_records_stream/3)
+  end
+
+  def insert_list!(module, repo, count, generator_name, attrs, opts) do
+    do_insert_list(module, repo, count, generator_name, attrs, opts, &create_records_stream!/3)
+  end
+
+  def do_insert_list(module, repo, count, generator_name, attrs, opts, create_records_stream_fun) do
     module
-    |> create_records_stream(generator_name, attrs)
+    |> create_records_stream_fun.(generator_name, attrs)
     |> Stream.map(&insert_record(&1, repo, opts))
     |> Enum.take(count)
   end
 
   defp create_records_stream(module, generator_name, attrs) do
+    do_create_records_stream(module, generator_name, attrs, &merge_attributes/4)
+  end
+
+  defp create_records_stream!(module, generator_name, attrs) do
+    do_create_records_stream(module, generator_name, attrs, &merge_attributes!/4)
+  end
+
+  defp do_create_records_stream(module, generator_name, attrs, merge_attrs_fun) do
     module
     |> create_stream(generator_name)
     |> Stream.with_index(1)
-    |> Stream.map(&merge_attributes(&1, attrs))
+    |> Stream.map(&merge_attrs_fun.(&1, attrs, module, generator_name))
   end
 
-  defp merge_attributes({record, index}, attrs) when is_struct(record) do
+  defp merge_attributes({record, index}, attrs, _, _) when is_struct(record) do
     struct(record, prepare_attributes(attrs, index))
   end
 
-  defp merge_attributes({map, index}, attrs) when is_map(map) do
+  defp merge_attributes({map, index}, attrs, _, _) when is_map(map) do
     attrs = attrs |> prepare_attributes(index) |> Map.new()
     Map.merge(map, attrs)
   end
 
-  defp merge_attributes({maybe_keyword, index}, attrs) do
+  defp merge_attributes({maybe_keyword, index}, attrs, _, _) do
     if Keyword.keyword?(maybe_keyword) do
       Keyword.merge(maybe_keyword, prepare_attributes(attrs, index))
     else
       maybe_keyword
+    end
+  end
+
+  defp merge_attributes!({record, index}, attrs, module, generator_name) when is_struct(record) do
+    try do
+      struct!(record, prepare_attributes(attrs, index))
+    rescue
+      err in KeyError ->
+        raise EctoStreamFactory.MissingKeyError,
+          module: module,
+          generator_name: generator_name,
+          key: err.key
+    end
+  end
+
+  defp merge_attributes!({map, index}, attrs, module, generator_name) when is_map(map) do
+    check_missing_key(map, attrs, &Map.has_key?/2, module, generator_name)
+
+    merge_attributes({map, index}, attrs, module, generator_name)
+  end
+
+  defp merge_attributes!({maybe_keyword, index}, attrs, module, generator_name) do
+    if Keyword.keyword?(maybe_keyword) do
+      check_missing_key(maybe_keyword, attrs, &Keyword.has_key?/2, module, generator_name)
+    end
+
+    merge_attributes({maybe_keyword, index}, attrs, module, generator_name)
+  end
+
+  defp check_missing_key(map_or_keyword, attrs, has_key_fun, module, generator_name) do
+    missing_key =
+      attrs
+      |> Keyword.keys()
+      |> Enum.find_value(fn key ->
+        if has_key_fun.(map_or_keyword, key) do
+          false
+        else
+          key
+        end
+      end)
+
+    if missing_key do
+      raise EctoStreamFactory.MissingKeyError,
+        module: module,
+        generator_name: generator_name,
+        key: missing_key
     end
   end
 
@@ -71,7 +157,7 @@ defmodule EctoStreamFactory.Factory do
       apply(module, function_name, [])
     else
       raise EctoStreamFactory.UndefinedGeneratorError,
-        module: module_to_string(module),
+        module: module,
         generator_name: generator_name
     end
   end
@@ -87,11 +173,7 @@ defmodule EctoStreamFactory.Factory do
   def get_repo(module, opts) do
     case Keyword.fetch(opts, :repo) do
       {:ok, repo} -> repo
-      _ -> raise EctoStreamFactory.RepoNotSpecifiedError, module: module_to_string(module)
+      _ -> raise EctoStreamFactory.RepoNotSpecifiedError, module: module
     end
-  end
-
-  defp module_to_string(module) do
-    module |> to_string() |> String.replace_prefix("Elixir.", "")
   end
 end

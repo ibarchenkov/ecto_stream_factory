@@ -4,7 +4,7 @@ defmodule EctoStreamFactory.TestFactory do
   def user_generator do
     gen all name <- string(:alphanumeric, min_length: 1),
             email <- email_generator(),
-            age <- integer(15..80) do
+            age <- integer(18..80) do
       %EctoStreamFactory.User{name: name, email: email, age: age}
     end
   end
@@ -26,14 +26,14 @@ defmodule EctoStreamFactory.TestFactory do
   def map_generator do
     gen all field1 <- string(:alphanumeric, min_length: 1),
             field2 <- integer() do
-      %{fiel1: field1, field2: field2}
+      %{field1: field1, field2: field2}
     end
   end
 
   def keyword_generator do
     gen all field1 <- string(:alphanumeric, min_length: 1),
             field2 <- integer() do
-      [fiel1: field1, field2: field2]
+      [field1: field1, field2: field2]
     end
   end
 

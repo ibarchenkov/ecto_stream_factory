@@ -126,8 +126,11 @@ iex> build(:post, text: "Hello world")
 iex> build_list(2, :user, name: fn n -> "user#{n}" end)
 [%User{id: nil, name: "user1", age: 51, email: "n5@gmail.com"}, %User{id: nil, name: "user2", age: 40, email: "O6@yandex.com"}]
 
-iex> insert(:user)
+iex> insert!(:user)
 %User{id: 1, name: "b", age: 23, email: "az7@gmail.com"}
+
+iex> insert!(:user, gender: "female")
+** (EctoStreamFactory.MissingKeyError) MyApp.Factory.user_generator does not generate :gender field.
 
 iex> insert(:user, [email: "az7@gmail.com"], on_conflict: :nothing)
 %User{id: nil, name: "c", age: 44, email: "az7@gmail.com"}
