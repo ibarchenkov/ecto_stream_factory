@@ -1,3 +1,12 @@
+# Changelog
+
+## v0.2.1 (2022-05-28)
+
+### Enhancements
+
+  * Improve documentation
+  * Update dependencies
+
 ## v0.2.0 (2021-04-24)
 
 ### Enhancements

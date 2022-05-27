@@ -2,11 +2,12 @@ defmodule EctoStreamFactory.MixProject do
   use Mix.Project
 
   @project_url "https://github.com/ibarchenkov/ecto_stream_factory"
+  @version "0.2.1"
 
   def project do
     [
       app: :ecto_stream_factory,
-      version: "0.2.0",
+      version: @version,
       elixir: ">= 1.10.0",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
@@ -36,7 +37,7 @@ defmodule EctoStreamFactory.MixProject do
       {:stream_data, "~> 0.5"},
       {:ecto_sql, "~> 3.0", optional: true},
       {:postgrex, ">= 0.0.0", only: :test},
-      {:ex_doc, "~> 0.21", only: :dev, runtime: false},
+      {:ex_doc, "~> 0.28", only: :dev, runtime: false},
       {:dialyxir, "~> 1.0", only: :dev, runtime: false}
     ]
   end
@@ -53,7 +54,8 @@ defmodule EctoStreamFactory.MixProject do
   defp docs do
     [
       source_url: @project_url,
-      extras: ["README.md"],
+      source_ref: "v#{@version}",
+      extras: ["README.md", "CHANGELOG.md"],
       main: "readme"
     ]
   end
@@ -64,7 +66,8 @@ defmodule EctoStreamFactory.MixProject do
       licenses: ["MIT"],
       links: %{
         "GitHub" => @project_url,
-        "Documentation" => "https://hexdocs.pm/ecto_stream_factory"
+        "Documentation" => "https://hexdocs.pm/ecto_stream_factory",
+        "Changelog" => "https://hexdocs.pm/ecto_stream_factory/changelog.html"
       }
     ]
   end

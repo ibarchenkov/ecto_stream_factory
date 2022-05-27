@@ -9,7 +9,7 @@ You can define one factory and use it in the following scenarios:
 
 [HexDocs](https://hexdocs.pm/ecto_stream_factory)
 
-You can read about property-based testing in Fred Hebert's [book](https://pragprog.com/book/fhproper/property-based-testing-with-proper-erlang-and-elixir).
+You can read about property-based testing in Fred Hebert's [book](https://pragprog.com/titles/fhproper/property-based-testing-with-proper-erlang-and-elixir).
 
 ## Installation
 
@@ -18,7 +18,7 @@ Add EctoStreamFactory dependency to `mix.exs`:
 ```elixir
 def deps do
   [
-    {:ecto_stream_factory, "~> 0.1", only: [:test, :dev]}
+    {:ecto_stream_factory, "~> 0.2", only: [:test, :dev]}
   ]
 end
 ```

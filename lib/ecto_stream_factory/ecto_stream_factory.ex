@@ -119,6 +119,7 @@ defmodule EctoStreamFactory do
       iex> Factory.build!(:user, name: "foo", weight: 101)
       ** (EctoStreamFactory.MissingKeyError) MyApp.Factory.user_generator does not generate :weight field.
   """
+  @doc since: "0.2.0"
   @callback build!(generator_name(), overwrites()) :: term()
 
   @doc ~S"""
@@ -134,6 +135,7 @@ defmodule EctoStreamFactory do
   @doc ~S"""
   Same as `c:build_list/3`, but raises an error if some key in `overwites` does not exist in the generated entities.
   """
+  @doc since: "0.2.0"
   @callback build_list!(amount(), generator_name(), overwrites) :: nonempty_list(term())
 
   @doc """
@@ -149,6 +151,7 @@ defmodule EctoStreamFactory do
   @doc """
   Same as `c:insert/3`, but raises an error if some key in `overwites` does not exist in the generated struct.
   """
+  @doc since: "0.2.0"
   @callback insert!(generator_name(), overwrites(), insert_opts()) :: Schema.t()
 
   @doc """
@@ -165,6 +168,7 @@ defmodule EctoStreamFactory do
   @doc ~S"""
   Same as `c:insert_list/4`, but raises an error if some key in `overwites` does not exist in the generated structs.
   """
+  @doc since: "0.2.0"
   @callback insert_list!(amount(), generator_name(), overwrites(), insert_opts()) ::
               nonempty_list(Schema.t())
 end
