@@ -2,7 +2,7 @@ defmodule EctoStreamFactory.MixProject do
   use Mix.Project
 
   @project_url "https://github.com/ibarchenkov/ecto_stream_factory"
-  @version "0.2.1"
+  @version "0.2.2"
 
   def project do
     [

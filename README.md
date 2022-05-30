@@ -58,6 +58,22 @@ defmodule MyApp.Factory do
       "#{username}#{System.unique_integer([:positive, :monotonic])}@#{domain}"
     end
   end
+
+  # handy for controller tests
+  def user_params_generator do
+    gen all user <- user_generator(),
+            # you can also use Faker to generate human-friendly data
+            last_name <- constant(Faker.Person.last_name()),
+            idempotency_key <- constant(Ecto.UUID.generate()) do
+      %{
+        "name" => user.name,
+        "last_name" => last_name,
+        "age" => to_string(user.age),
+        "email" => user.email,
+        "idempotency_key" => idempotency_key
+      }
+    end
+  end
 end
 ```
 
@@ -121,10 +137,27 @@ iex> build(:user, name: "Bob")
 %User{id: nil, name: "Bob", age: 28, email: "S3@gmail.com"}
 
 iex> build(:post, text: "Hello world")
-%Post{id: nil, text: "Hello world", author: %User{id: nil, name: "b", age: 28, email: "l4@gmail.com"}}
+%Post{
+  id: nil,
+  text: "Hello world",
+  author: %User{id: nil, name: "b", age: 28, email: "l4@gmail.com"}
+}
+
+iex> build(:user_params, %{"idempotency_key" => "123", "new_param" => "foo"})
+%{
+  "name" => "2BO",
+  "last_name" => "Herman",
+  "age" => "32",
+  "email" => "a@gmail.com",
+  "idempotency_key" => "123",
+  "new_params" => "foo"
+}
 
 iex> build_list(2, :user, name: fn n -> "user#{n}" end)
-[%User{id: nil, name: "user1", age: 51, email: "n5@gmail.com"}, %User{id: nil, name: "user2", age: 40, email: "O6@yandex.com"}]
+[
+  %User{id: nil, name: "user1", age: 51, email: "n5@gmail.com"},
+  %User{id: nil, name: "user2", age: 40, email: "O6@yandex.com"}
+]
 
 iex> insert!(:user)
 %User{id: 1, name: "b", age: 23, email: "az7@gmail.com"}
@@ -136,10 +169,17 @@ iex> insert(:user, [email: "az7@gmail.com"], on_conflict: :nothing)
 %User{id: nil, name: "c", age: 44, email: "az7@gmail.com"}
 
 iex> insert(:post, author: build(:user, name: "Jane"))
-%Post{id: 1, text: "kjfwi245lfh", author: %User{id: 2, name: "Jane", age: 34, email: "jhg8@yandex.com"}}
+%Post{
+  id: 1,
+  text: "kjfwi245lfh",
+  author: %User{id: 2, name: "Jane", age: 34, email: "jhg8@yandex.com"}
+}
 
 iex> insert_list(2, :user, age: 18)
-[%User{id: 3, name: "bc", age: 18, email: "kl9@protonmail.com"}, %User{id: 4, name: "bd", age: 18, email: "hj10@yandex.com"}]
+[
+  %User{id: 3, name: "bc", age: 18, email: "kl9@protonmail.com"},
+  %User{id: 4, name: "bd", age: 18, email: "hj10@yandex.com"}
+]
 ```
 
 ## Usage in property-based tests

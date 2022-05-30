@@ -43,4 +43,15 @@ defmodule EctoStreamFactory.TestFactory do
       [field1, field2]
     end
   end
+
+  def params_generator do
+    gen all map <- map_generator(),
+            idempotency_key <- constant(Ecto.UUID.generate()) do
+      %{
+        "field1" => map.field1,
+        "field2" => to_string(map.field2),
+        "idempotency_key" => idempotency_key
+      }
+    end
+  end
 end

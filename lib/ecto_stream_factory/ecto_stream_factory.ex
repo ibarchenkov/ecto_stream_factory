@@ -79,17 +79,17 @@ defmodule EctoStreamFactory do
 
   @type generator_name() :: atom() | String.t()
 
+  @type overwrite_value :: term() | (pos_integer() -> term())
+
   @typedoc """
-    Keyword list or map where values can be of any literal types or one arity functions that generate sequential data.
+  Keyword list or map where values can be of any literal types or one arity functions that generate sequential data.
   """
-  @type overwrites() ::
-          [{atom, term() | (non_neg_integer() -> term())}]
-          | %{required(atom) => term() | (non_neg_integer() -> term())}
+  @type overwrites() :: [{atom(), overwrite_value()}] | %{term() => overwrite_value()}
 
   @type amount() :: pos_integer()
 
   @typedoc """
-    Same as options for `c:Ecto.Repo.insert/2`.
+  Same as options for `c:Ecto.Repo.insert/2`.
   """
   @type insert_opts() :: Keyword.t()
 
