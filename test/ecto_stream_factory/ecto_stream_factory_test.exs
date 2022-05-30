@@ -56,14 +56,15 @@ defmodule EctoStreamFactoryTest do
     end
 
     test "merges plain maps" do
-      map = build(:map, field1: "foo")
+      map = build(:map, field1: "foo", new_field: "bar")
       assert map.field1 == "foo"
+      assert map.new_field == "bar"
       assert is_integer(map.field2)
     end
 
     test "merges keyword lists" do
-      keyword = build(:keyword, field3: 14)
-      assert Keyword.get(keyword, :field3) == 14
+      keyword = build(:keyword, %{new_field: 14})
+      assert Keyword.get(keyword, :new_field) == 14
     end
 
     test "returns plain data as is" do
@@ -75,6 +76,12 @@ defmodule EctoStreamFactoryTest do
       post = build(:post)
       assert is_nil(post.author_id)
       assert String.length(post.author.name) >= 1
+    end
+
+    test "params for controller tests" do
+      params = build(:params, %{"idempotency_key" => "foo", "new_param" => "bar"})
+      assert params["idempotency_key"] == "foo"
+      assert params["new_param"] == "bar"
     end
   end
 
@@ -104,11 +111,24 @@ defmodule EctoStreamFactoryTest do
       assert map.field1 == "foo"
     end
 
+    test "with valid map overwrites" do
+      map = build!(:map, %{field1: "foo"})
+
+      assert map.field1 == "foo"
+    end
+
+    test "with invalid map overwrites" do
+      assert_raise EctoStreamFactory.MissingKeyError,
+                   fn ->
+                     build!(:map, %{new_field: "foo"})
+                   end
+    end
+
     test "with invalid map attributes" do
       assert_raise EctoStreamFactory.MissingKeyError,
-                   "EctoStreamFactory.TestFactory.map_generator does not generate :field3 field.\n",
+                   "EctoStreamFactory.TestFactory.map_generator does not generate :new_field field.\n",
                    fn ->
-                     build!(:map, field1: "foo", field3: "bar")
+                     build!(:map, field1: "foo", new_field: "bar")
                    end
     end
 
@@ -123,6 +143,14 @@ defmodule EctoStreamFactoryTest do
                    ~r/keyword_generator does not generate :field4/,
                    fn ->
                      build!(:keyword, field4: "foo")
+                   end
+    end
+
+    test "params for controller tests" do
+      assert_raise EctoStreamFactory.MissingKeyError,
+                   ~r/"new_param"/,
+                   fn ->
+                     build!(:params, %{"idempotency_key" => "foo", "new_param" => "bar"})
                    end
     end
   end

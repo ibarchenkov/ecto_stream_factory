@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.2.2 (2022-05-30)
+
+### Enhancements
+
+  * Improve documentation
+  * Add more tests
+
+### Bug fix
+
+  * Convert `t:EctoStreamFactory.overwrites/0` to a map to prevent bugs
+
 ## v0.2.1 (2022-05-28)
 
 ### Enhancements

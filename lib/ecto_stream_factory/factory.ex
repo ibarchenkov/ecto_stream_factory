@@ -70,7 +70,7 @@ defmodule EctoStreamFactory.Factory do
     module
     |> create_stream(generator_name)
     |> Stream.with_index(1)
-    |> Stream.map(&merge_attrs_fun.(&1, attrs, module, generator_name))
+    |> Stream.map(&merge_attrs_fun.(&1, Map.new(attrs), module, generator_name))
   end
 
   defp merge_attributes({record, index}, attrs, _, _) when is_struct(record) do
@@ -79,6 +79,7 @@ defmodule EctoStreamFactory.Factory do
 
   defp merge_attributes({map, index}, attrs, _, _) when is_map(map) do
     attrs = attrs |> prepare_attributes(index) |> Map.new()
+    # refactor to `then/2` when we require Elixir 1.12
     Map.merge(map, attrs)
   end
 
@@ -119,7 +120,7 @@ defmodule EctoStreamFactory.Factory do
   defp check_missing_key(map_or_keyword, attrs, has_key_fun, module, generator_name) do
     missing_key =
       attrs
-      |> Keyword.keys()
+      |> Map.keys()
       |> Enum.find_value(fn key ->
         if has_key_fun.(map_or_keyword, key) do
           false
